@@ -10,5 +10,5 @@ FN square(val)
 END
 
 FN cube(val)
-    RETURN val ^ 2
+    RETURN val ^ 3
 END

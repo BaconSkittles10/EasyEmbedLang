@@ -1,3 +1,6 @@
+import os
+import pathlib
+
 from eel.errors import RTError
 from eel.values import Number, Function, String, List, Null
 from eel.tokens import *
@@ -310,11 +313,23 @@ class Interpreter:
 
             fn = value.value + ".eel"
 
+            if not os.path.isfile(fn):
+                fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", fn)
+                print("NOT A FILE", fn)
+
             result, error = run(fn, open(fn).read())
             result = result.elements
             for node in result:
+                c = node.copy()
                 if isinstance(node, Function):
-                    func_value = (Function(node.name, node.body_node, node.arg_names, node.should_auto_return)
-                                  .set_context(context).set_pos(node.pos_start, node.pos_end))
-                    context.symbol_table.set(node.name, func_value)
+                    context.symbol_table.set(node.name, c)
+                elif isinstance(node, Number) or isinstance(node, String):
+                    name = [name for name, val in node.context.symbol_table.symbols.items() if val == node]
+                    if len(name) > 0:
+                        name = name[0]
+                    else:
+                        return res.failure(RTError("Unknown Import Error", node.pos_start, node.pos_end, context))
+                    context.symbol_table.set(name, c)
+
+
         return res.success(value)
