@@ -294,3 +294,27 @@ class Interpreter:
 
     def visit_BreakNode(self, node, context):
         return RTResult().success_break()
+
+    def visit_ImportNode(self, node, context):
+        res = RTResult()
+
+        if node.fn_node:
+            value = res.register(self.visit(node.fn_node, context))
+            if res.should_return():
+                return res
+        else:
+            value = Null()
+
+        if isinstance(value, String):
+            from eel import run
+
+            fn = value.value + ".eel"
+
+            result, error = run(fn, open(fn).read())
+            result = result.elements
+            for node in result:
+                if isinstance(node, Function):
+                    func_value = (Function(node.name, node.body_node, node.arg_names, node.should_auto_return)
+                                  .set_context(context).set_pos(node.pos_start, node.pos_end))
+                    context.symbol_table.set(node.name, func_value)
+        return res.success(value)

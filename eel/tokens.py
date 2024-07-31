@@ -47,6 +47,8 @@ KEYWORDS = [
     "FN",
     "RETURN",
 
+    "IMPORT",
+
     "END"
 ]
 
