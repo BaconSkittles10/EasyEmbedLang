@@ -2,7 +2,7 @@ IMPORT "math"
 
 ################################################## Print Statement ##################################################
 
-PRINT(square(2))
+PRINT(math::square(2))
 PRINT("Hello world")
 PRINT("")
 
@@ -59,7 +59,7 @@ PRINT(add_res)
 VAR join_res = join(["hi", "hello", "hola"], ", ")
 PRINT(join_res)
 
-VAR map_res = map([1, 2, 3], double)
+VAR map_res = map([1, 2, 3], math::double)
 PRINT(map_res)
 
 PRINT("")

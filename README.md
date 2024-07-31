@@ -5,9 +5,9 @@
 ## Contribution
 
 ## TODO
-- [ ] Imports
-- [ ] Add Some Packages (Like Math)
 - [ ] Fix Error Messages for try_register
+- [ ] Dictionaries
+- [ ] Classes
 
 ## Syntax
 - **Loops:**

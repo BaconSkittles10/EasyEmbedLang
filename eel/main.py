@@ -29,7 +29,7 @@ global_symbol_table.set("LEN", BuiltInFunction.len)
 global_symbol_table.set("RUN", BuiltInFunction.run)
 
 
-def run(fn, text):
+def run(fn, text, _import=False):
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
 
@@ -44,8 +44,12 @@ def run(fn, text):
 
     # run program
     interpreter = Interpreter()
-    context = Context("<program>")
-    context.symbol_table = global_symbol_table
+    if _import:
+        context = Context("<_importer_>")
+        context.symbol_table = global_symbol_table.copy()
+    else:
+        context = Context("<program>")
+        context.symbol_table = global_symbol_table
     result = interpreter.visit(ast.node, context)
 
     return result.value, result.error

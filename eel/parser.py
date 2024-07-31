@@ -265,8 +265,20 @@ class Parser:
             return res.success(StringNode(tok))
 
         elif tok.type == TT_IDENTIFIER:
+            pos_start = tok.pos_start
             res.register_advance()
             self.advance()
+
+            if self.current_tok.type == TT_DUBCOL:
+                res.register_advance()
+                self.advance()
+                if self.current_tok.type == TT_IDENTIFIER:
+                    tok.value += "::" + self.current_tok.value
+                    self.advance()
+
+                else:
+                    return res.failure(RTError("Expected identifier after '::'", pos_start, self.current_tok.pos_end))
+
             return res.success(VarAccessNode(tok))
 
         elif tok.type == TT_LPAREN:

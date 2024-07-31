@@ -315,21 +315,29 @@ class Interpreter:
 
             if not os.path.isfile(fn):
                 fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", fn)
-                print("NOT A FILE", fn)
 
-            result, error = run(fn, open(fn).read())
+            if not os.path.isfile(fn):
+                fn = "_" + value.value + ".py"
+                fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", fn)
+                if os.path.isfile(fn):
+                    # Handle python library
+                    print("Python Library", fn)
+                else:
+                    return res.failure(RTError(f"Import Error: No module or local file named '{value.value}'", node.pos_start, node.pos_end, context))
+
+            result, error = run(fn, open(fn).read(), True)
             result = result.elements
+            prefix = value.value + "::"
             for node in result:
                 c = node.copy()
                 if isinstance(node, Function):
-                    context.symbol_table.set(node.name, c)
+                    context.symbol_table.set(prefix + node.name, c)
                 elif isinstance(node, Number) or isinstance(node, String):
                     name = [name for name, val in node.context.symbol_table.symbols.items() if val == node]
                     if len(name) > 0:
                         name = name[0]
                     else:
                         return res.failure(RTError("Unknown Import Error", node.pos_start, node.pos_end, context))
-                    context.symbol_table.set(name, c)
-
+                    context.symbol_table.set(prefix + name, c)
 
         return res.success(value)
