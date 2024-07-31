@@ -1,0 +1,64 @@
+################################################## Print Statement ##################################################
+
+PRINT("Hello world")
+PRINT("")
+
+################################################## For Loop ##################################################
+FOR i = 1 TO 6 THEN
+    IF i == 1 THEN
+        PRINT("-----FOR LOOP-----")
+    END
+    PRINT("Iteration " + i)
+END
+
+################################################## While Loop ##################################################
+VAR x = 1
+WHILE x < 6 THEN
+    IF x == 1 THEN
+        PRINT("-----WHILE LOOP-----")
+    END
+    PRINT("Iteration " + x)
+    VAR x = x + 1
+END
+
+################################################## Function ##################################################
+PRINT("-----FUNCTIONS-----")
+FN add (num1, num2) -> num1 + num2
+FN double (num1) -> num1 * 2
+FN join (elements, sep)
+    VAR result = ""
+    VAR len = LEN(elements)
+
+    FOR i = 0 TO len THEN
+        IF i != 0 THEN
+            VAR result = result + sep + elements^i
+        ELSE
+            VAR result = result + elements^i
+        END
+    END
+
+    RETURN result
+END
+
+FN map(elements, func)
+    VAR new_elements = []
+
+    FOR i = 0 TO LEN(elements) THEN
+        LS_APPEND(new_elements, func(elements^i))
+    END
+
+    RETURN new_elements
+END
+
+
+VAR add_res = add(1, 2)
+PRINT(add_res)
+
+VAR join_res = join(["hi", "hello", "hola"], ", ")
+PRINT(join_res)
+
+VAR map_res = map([1, 2, 3], double)
+PRINT(map_res)
+
+PRINT("")
+

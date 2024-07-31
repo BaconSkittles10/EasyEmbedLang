@@ -1,0 +1,11 @@
+VAR pi = 3.141592653589793238462643383279502884197
+VAR logpi = 1.144729885849400174143427351353058711647;
+
+FN double(val):
+    RETURN val * 2
+
+FN square(val):
+    RETURN val ^ 2
+
+FN cube(val):
+    RETURN val ^ 2
