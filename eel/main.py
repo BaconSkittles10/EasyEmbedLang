@@ -11,8 +11,6 @@ global_symbol_table.set("null", Number(0))
 global_symbol_table.set("true", Number(1))
 global_symbol_table.set("false", Number(0))
 
-global_symbol_table.set("MATH_PI", Number(math.pi))
-
 global_symbol_table.set("PRINT", BuiltInFunction.print)
 global_symbol_table.set("INPUT", BuiltInFunction.input)
 global_symbol_table.set("INPUT_INT", BuiltInFunction.input_int)
