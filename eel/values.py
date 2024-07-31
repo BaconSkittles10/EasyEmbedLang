@@ -668,7 +668,7 @@ class BuiltInFunction(BaseFunction):
         _, error = run(fn, script)
         if error:
             return RTResult().failure(RTError(
-                f"Failed to finish executing sscript \"{fn}\"\n" + error.as_string(),
+                f"Failed to finish executing script \"{fn}\"\n" + error.as_string(),
                 self.pos_start, self.pos_end, exec_ctx
             ))
 

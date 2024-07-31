@@ -146,6 +146,14 @@ class ReturnNode:
         self.pos_end = pos_end
 
 
+class ImportNode:
+    def __init__(self, fn_node, pos_start, pos_end):
+        self.fn_node = fn_node
+
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+
+
 class ContinueNode:
     def __init__(self, pos_start, pos_end):
         self.pos_start = pos_start

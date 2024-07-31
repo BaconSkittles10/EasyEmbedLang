@@ -1,5 +1,8 @@
+IMPORT "math"
+
 ################################################## Print Statement ##################################################
 
+PRINT(square(2))
 PRINT("Hello world")
 PRINT("")
 
@@ -24,7 +27,6 @@ END
 ################################################## Function ##################################################
 PRINT("-----FUNCTIONS-----")
 FN add (num1, num2) -> num1 + num2
-FN double (num1) -> num1 * 2
 FN join (elements, sep)
     VAR result = ""
     VAR len = LEN(elements)

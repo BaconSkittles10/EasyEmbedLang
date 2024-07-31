@@ -1,5 +1,5 @@
 from eel.nodes import NumberNode, BinOpNode, UnaryOpNode, VarAccessNode, VarAssignNode, IfNode, ForNode, WhileNode, \
-    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode
+    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode, ImportNode
 from .tokens import *
 from .errors import *
 
@@ -106,10 +106,19 @@ class Parser:
             self.advance()
             return res.success(BreakNode(pos_start, self.current_tok.pos_start.copy()))
 
+        if self.current_tok.matches(TT_KEYWORD, "IMPORT"):
+            res.register_advance()
+            self.advance()
+
+            expr = res.try_register(self.expr())
+            if not expr:
+                self.reverse(res.to_reverse_count)
+            return res.success(ImportNode(expr, pos_start, self.current_tok.pos_start.copy()))
+
         expr = res.register(self.expr())
         if res.error:
             return res.failure(InvalidSyntaxError(
-               "Expected 'RETURN', 'CONTINUE', 'BREAK', 'VAR', 'IF', 'FOR', 'WHILE', 'FN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
+               "Expected 'RETURN', 'IMPORT', 'CONTINUE', 'BREAK', 'VAR', 'IF', 'FOR', 'WHILE', 'FN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
                 pos_start, self.current_tok.pos_end
             ))
         return res.success(expr)
