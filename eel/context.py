@@ -23,6 +23,11 @@ class SymbolTable:
     def remove(self, name):
         del self.symbols[name]
 
+    def copy(self):
+        new = SymbolTable()
+        new.parent = self
+        return new
+
 
 """
 

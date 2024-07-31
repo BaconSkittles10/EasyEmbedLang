@@ -139,6 +139,17 @@ class Lexer:
                     tokens.append(Token(TT_COMMA, pos_start=self.pos))
                     self.advance()
 
+                case ":":
+                    pos_start = self.pos
+                    self.advance()
+
+                    if self.current_char == ":":
+                        tokens.append(Token(TT_DUBCOL, pos_start=pos_start, pos_end=self.pos))
+                        self.advance()
+
+                    else:
+                        return [], IllegalCharError(f"'{self.current_char}'", pos_start, self.pos)
+
                 case curr_char if curr_char in ";\n":
                     tokens.append(Token(TT_NEWLINE, pos_start=self.pos))
                     self.advance()
