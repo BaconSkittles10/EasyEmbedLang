@@ -59,6 +59,9 @@ class Interpreter:
         elif t == TT_DIV:
             result, error = left.divided_by(right)
 
+        elif t == TT_MOD:
+            result, error = left.mod_div_by(right)
+
         elif t == TT_POW:
             result, error = left.powered_by(right)
 

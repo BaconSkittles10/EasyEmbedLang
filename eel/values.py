@@ -32,6 +32,9 @@ class BaseType:
     def divided_by(self, other):
         return None, self.illegal_operation(other)
 
+    def mod_div_by(self, other):
+        return None, self.illegal_operation(other)
+
     def powered_by(self, other):
         return None, self.illegal_operation(other)
 
@@ -114,6 +117,19 @@ class Number(BaseType):
                     self.context
                 )
             return Number(self.value / other.value).set_context(self.context), None
+
+        else:
+            return None, self.illegal_operation(other)
+
+    def mod_div_by(self, other):
+        if isinstance(other, Number):
+            if other.value == 0:
+                return None, RTError(
+                    "Division by zero",
+                    other.pos_start, other.pos_end,
+                    self.context
+                )
+            return Number(self.value % other.value).set_context(self.context), None
 
         else:
             return None, self.illegal_operation(other)
