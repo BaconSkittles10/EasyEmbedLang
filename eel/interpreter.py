@@ -2,7 +2,7 @@ import os
 import pathlib
 
 from eel.errors import RTError
-from eel.values import Number, Function, String, List, Null
+from eel.values import Number, Function, String, List, Null, Dictionary
 from eel.tokens import *
 from eel.base import RTResult
 
@@ -37,6 +37,20 @@ class Interpreter:
 
         return res.success(
             List(elements).set_context(context).set_pos(node.pos_start, node.pos_end)
+        )
+
+    def visit_DictNode(self, node, context):
+        res = RTResult()
+        items = {}
+
+        for k, v in node.items.items():
+            k = res.register(self.visit(k, context))
+            items[k] = res.register(self.visit(v, context))
+            if res.should_return():
+                return res
+
+        return res.success(
+            Dictionary(items).set_context(context).set_pos(node.pos_start, node.pos_end)
         )
 
     def visit_BinOpNode(self, node, context):

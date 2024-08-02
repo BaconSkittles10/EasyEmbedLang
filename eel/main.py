@@ -23,6 +23,7 @@ global_symbol_table.set("IS_FUNC", BuiltInFunction.is_func)
 global_symbol_table.set("LS_APPEND", BuiltInFunction.ls_append)
 global_symbol_table.set("LS_POP", BuiltInFunction.ls_pop)
 global_symbol_table.set("LS_EXTEND", BuiltInFunction.ls_extend)
+global_symbol_table.set("DICT_GET", BuiltInFunction.dict_get)
 global_symbol_table.set("LEN", BuiltInFunction.len)
 global_symbol_table.set("RUN", BuiltInFunction.run)
 

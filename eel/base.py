@@ -124,6 +124,14 @@ class Lexer:
                     tokens.append(Token(TT_RBRACKET, pos_start=self.pos))
                     self.advance()
 
+                case "{":
+                    tokens.append(Token(TT_LCURLY, pos_start=self.pos))
+                    self.advance()
+
+                case "}":
+                    tokens.append(Token(TT_RCURLY, pos_start=self.pos))
+                    self.advance()
+
                 case "!":
                     tok, error = self.make_not_equals()
                     if error:
@@ -152,7 +160,8 @@ class Lexer:
                         self.advance()
 
                     else:
-                        return [], IllegalCharError(f"'{self.current_char}'", pos_start, self.pos)
+                        tokens.append(Token(TT_COLON, pos_start=pos_start))
+                        # return [], IllegalCharError(f"'{self.current_char}'", pos_start, self.pos)
 
                 case curr_char if curr_char in ";\n":
                     tokens.append(Token(TT_NEWLINE, pos_start=self.pos))

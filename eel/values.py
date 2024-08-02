@@ -374,7 +374,7 @@ class List(BaseType):
     def copy(self):
         copy = List(self.elements)
         copy.set_pos(self.pos_start, self.pos_end)
-        self.set_context(self.context)
+        copy.set_context(self.context)
         return copy
 
     def __str__(self):
@@ -383,6 +383,39 @@ class List(BaseType):
 
     def __repr__(self):
         return f"[{', '.join([str(x) for x in self.elements])}]"
+
+
+class Dictionary(BaseType):
+    def __init__(self, items: dict | None = None, keys=None, values=None):
+        super().__init__()
+
+        if items:
+            self.items = items
+
+        elif keys and values:
+            keys = keys.elements if isinstance(keys, List) else keys
+            values = values.elements if isinstance(values, List) else values
+
+            self.items = {k: v for k, v in zip(keys, values)}
+
+    def copy(self):
+        return Dictionary(self.items).set_pos(self.pos_start, self.pos_end).set_context(self.context)
+
+    def __str__(self):
+        res = ""
+
+        for k, v in self.items.items():
+            res += f", {repr(k)}:{repr(v)}"
+
+        return "{" + res[2:] + "}"
+
+    def __repr__(self):
+        res = ""
+
+        for k, v in self.items.items():
+            res += f", {str(k)}:{str(v)}"
+
+        return res[2:]
 
 
 class BaseFunction(BaseType):
@@ -647,18 +680,38 @@ class BuiltInFunction(BaseFunction):
 
     execute_ls_extend.arg_names = ["list1", "list2"]
 
-    def execute_len(self, exec_ctx):
-        list_ = exec_ctx.symbol_table.get("list")
+    def execute_dict_get(self, exec_ctx):
+        dict_ = exec_ctx.symbol_table.get("dict")
+        key = exec_ctx.symbol_table.get("key")
+        # TODO: When I add optional args, add optional default value
 
-        if not isinstance(list_, List):
+        for k in dict_.items:
+            if k.value == key.value:
+                return RTResult().success(dict_.items[k])
+
+        return RTResult().failure(RTError(
+            f"Key '{key}' is not in dictionary",
+            self.pos_start, self.pos_end, exec_ctx
+        ))
+
+    execute_dict_get.arg_names = ["dict", "key"]
+
+    def execute_len(self, exec_ctx):
+        item = exec_ctx.symbol_table.get("item")
+
+        if isinstance(item, List):
+            return RTResult().success(Number(len(item.elements)))
+
+        elif isinstance(item, Dictionary):
+            return RTResult().success(Number(len(item.items.keys())))
+
+        else:
             return RTResult().failure(RTError(
-                "Argument must be list",
+                "Argument must be list or dictionary",
                 self.pos_start, self.pos_end, exec_ctx
             ))
 
-        return RTResult().success(Number(len(list_.elements)))
-
-    execute_len.arg_names = ["list"]
+    execute_len.arg_names = ["item"]
 
     def execute_run(self, exec_ctx):  # TODO: Use this as a basis for import
         fn = exec_ctx.symbol_table.get("fn")
@@ -705,5 +758,6 @@ BuiltInFunction.is_func =       BuiltInFunction("is_func")
 BuiltInFunction.ls_append =     BuiltInFunction("ls_append")
 BuiltInFunction.ls_pop =        BuiltInFunction("ls_pop")
 BuiltInFunction.ls_extend =     BuiltInFunction("ls_extend")
-BuiltInFunction.len =        BuiltInFunction("len")
+BuiltInFunction.dict_get =      BuiltInFunction("dict_get")
+BuiltInFunction.len =           BuiltInFunction("len")
 BuiltInFunction.run =           BuiltInFunction("run")
