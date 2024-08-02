@@ -2,6 +2,10 @@ IMPORT "math"
 
 ################################################## Print Statement ##################################################
 
+# TODO: add dict_get function
+
+VAR d = {"key": "value"}
+PRINT(DICT_GET(d, "key"))
 PRINT(math::square(2))
 PRINT("Hello world")
 PRINT("")

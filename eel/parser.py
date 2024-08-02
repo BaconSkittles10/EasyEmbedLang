@@ -1,5 +1,5 @@
 from eel.nodes import NumberNode, BinOpNode, UnaryOpNode, VarAccessNode, VarAssignNode, IfNode, ForNode, WhileNode, \
-    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode, ImportNode
+    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode, ImportNode, DictNode
 from .tokens import *
 from .errors import *
 
@@ -304,6 +304,13 @@ class Parser:
 
             return res.success(list_expr)
 
+        elif tok.type == TT_LCURLY:
+            dict_expr = res.register(self.dict_expr())
+            if res.error:
+                return res
+
+            return res.success(dict_expr)
+
         elif tok.matches(TT_KEYWORD, "IF"):
             if_expr = res.register(self.if_expr())
             if res.error:
@@ -378,6 +385,86 @@ class Parser:
 
         return res.success(ListNode(
             element_nodes,
+            pos_start, self.current_tok.pos_end.copy()
+        ))
+
+    def dict_expr(self):
+        res = ParseResult()
+        items = {}
+        pos_start = self.current_tok.pos_start.copy()
+
+        if self.current_tok.type != TT_LCURLY:
+            return res.failure(InvalidSyntaxError(
+                "Expected '{'",
+                self.current_tok.pos_start, self.current_tok.pos_end
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type == TT_RCURLY:
+            res.register_advance()
+            self.advance()
+        else:
+            k = res.register(self.expr())
+            # res.register_advance()
+            # self.advance()
+
+            if self.current_tok.type == TT_COLON:
+                res.register_advance()
+                self.advance()
+                v = res.register(self.expr())
+                if res.error:
+                    return res
+
+            else:
+                return res.failure(InvalidSyntaxError(
+                    "Expected ':'",
+                    pos_start, self.current_tok.pos_end
+                ))
+
+            items[k] = v
+
+            if res.error:
+                return res.failure(InvalidSyntaxError(
+                    "Expected '}', 'VAR', 'IF', 'FOR', 'WHILE', 'FN', int, float, identifier, '+', '-', '(', '[' or 'NOT'",
+                    self.current_tok.pos_start, self.current_tok.pos_end
+                ))
+
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                k = res.register(self.expr())
+                res.register_advance()
+                self.advance()
+
+                if self.current_tok.type == TT_COLON:
+                    res.register_advance()
+                    self.advance()
+                    v = res.register(self.expr())
+                    if res.error:
+                        return res
+
+                else:
+                    return res.failure(InvalidSyntaxError(
+                        "Expected ':'",
+                        pos_start, self.current_tok.pos_end
+                    ))
+
+                items[k] = v
+
+        if self.current_tok.type != TT_RCURLY:
+            return res.failure(InvalidSyntaxError(
+                "Expected ',' or '}'",
+                self.current_tok.pos_start, self.current_tok.pos_end
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        return res.success(DictNode(
+            items,
             pos_start, self.current_tok.pos_end.copy()
         ))
 

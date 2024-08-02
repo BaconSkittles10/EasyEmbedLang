@@ -25,12 +25,15 @@ call            : atom (LPAREN (expr (COMMA expr)*)? RPAREN)?
 atom            : INT|FLOAT|STRING|IDENTIFIER|IDENTIFIER DUBCOL IDENTIFIER
                 : LPAREN expr RPAREN
                 : list-expr
+                : dict-expr
                 : if-expr
                 : for-expr
                 : while-expr
                 : func-def
 
 list-expr       : LBRACKET (expr (COMMA expr)*)? RBRACKET
+
+dict-expr       : LCURLY (expr COLON expr (COMMA expr COLON expr)*)? RCURLY
 
 if-expr         : KEYWORD:IF expr KEYWORD:THEN
                   (statement if-expr-elif|if-expr-else?)
