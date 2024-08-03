@@ -2,7 +2,7 @@ import os
 import pathlib
 
 from eel.errors import RTError
-from eel.values import Number, Function, String, List, Null, Dictionary
+from eel.values import Number, Function, String, List, Null, Dictionary, ClassDef
 from eel.tokens import *
 from eel.base import RTResult
 
@@ -274,6 +274,21 @@ class Interpreter:
             context.symbol_table.set(func_name, func_value)
 
         return res.success(func_value)
+
+    def visit_ClassDefNode(self, node, context):
+        res = RTResult()
+
+        class_name = node.var_name_tok.value if node.var_name_tok else None
+        body_node = node.body_node
+        arg_names = [arg_name.value for arg_name in node.arg_name_toks]
+        init_func = Function("__init__", body_node, arg_names, False)
+        class_value = ClassDef(class_name, arg_names, init_func)
+        class_value.set_context(context).set_pos(node.pos_start, node.pos_end)
+
+        if node.var_name_tok:
+            context.symbol_table.set(class_name, class_value)
+
+        return res.success(class_value)
 
     def visit_CallNode(self, node, context):
         res = RTResult()

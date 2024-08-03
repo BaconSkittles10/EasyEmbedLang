@@ -418,6 +418,103 @@ class Dictionary(BaseType):
         return res[2:]
 
 
+class ClassDef(BaseType):
+    def __init__(self, name, init_arg_names, init_func):
+        super().__init__()
+        self.type = "ClassDef"
+
+        self.name = name
+        self.init_arg_names = init_arg_names
+        self.init_func = init_func
+        self.vars = {}
+        self.methods = {}
+
+    def copy(self):
+        new = ClassDef(self.name, self.init_arg_names, self.init_func)
+        new.vars = self.vars
+        new.methods = self.methods
+        return new
+
+    def set_context(self, context=None):
+        self.context = context
+        return self
+
+    def generate_new_context(self):
+        local_context = Context(self.name, self.context, self.pos_start)
+        if local_context.parent:
+            local_context.symbol_table = SymbolTable(local_context.parent.symbol_table)
+        return local_context
+
+    def execute(self, args):
+        from eel.base import RTResult
+        res = RTResult()
+
+        exec_ctx = self.generate_new_context()
+        instance = ClassInstance(self, args).set_context(exec_ctx)
+
+        # value = res.register(interpreter.visit(self.init_func, exec_ctx))
+        # if res.should_return() and res.func_return_value is None:
+        #     return res
+
+        instance.init_func.execute(self.init_arg_names)
+
+        ret_value = (value if self.should_auto_return else None) or res.func_return_value or Null()
+        return res.success(ret_value)
+
+
+class ClassInstance(BaseType):
+    def __init__(self, class_def, init_args):
+        super().__init__()
+        self.type = "ClassInstance"
+
+        self.class_def: ClassDef = class_def
+        self.vars = self.class_def.vars
+        self.methods = self.class_def.methods
+        self.init_func = self.class_def.init_func.copy()
+
+        self.check_args(self.class_def.init_arg_names, init_args)
+
+        self.init_func.set_context(self.context)
+        self.init_func.execute(init_args)
+
+    def check_args(self, arg_names, args):
+        from eel.base import RTResult
+        res = RTResult()
+
+        if len(args) > len(arg_names):
+            return res.failure(RTError(
+                f"Too many args ({len(args) - len(arg_names)}) passed into '{self.name}'",
+                self.pos_start, self.pos_end,
+                self.context
+            ))
+
+        if len(args) < len(arg_names):
+            return res.failure(RTError(
+                f"Too few args ({len(arg_names) - len(args)}) passed into '{self.name}'",
+                self.pos_start, self.pos_end,
+                self.context
+            ))
+
+        return res.success(Null())
+
+    def populate_args(self, arg_names, args, exec_ctx):
+        for i in range(len(args)):
+            arg_name = arg_names[i]
+            arg_value = args[i]
+            arg_value.set_context(exec_ctx)
+            exec_ctx.symbol_table.set(arg_name, arg_value)
+
+    def check_and_populate_args(self, arg_names, args, exec_ctx):
+        from eel.base import RTResult
+        res = RTResult()
+        res.register(self.check_args(arg_names, args))
+        if res.should_return():
+            return res
+        self.populate_args(arg_names, args, exec_ctx)
+
+        return res.success(Null())
+
+
 class BaseFunction(BaseType):
     def __init__(self, name):
         super().__init__()
@@ -426,7 +523,8 @@ class BaseFunction(BaseType):
 
     def generate_new_context(self):
         local_context = Context(self.name, self.context, self.pos_start)
-        local_context.symbol_table = SymbolTable(local_context.parent.symbol_table)
+        if local_context.parent:
+            local_context.symbol_table = SymbolTable(local_context.parent.symbol_table)
         return local_context
 
     def check_args(self, arg_names, args):

@@ -1,5 +1,5 @@
 from eel.nodes import NumberNode, BinOpNode, UnaryOpNode, VarAccessNode, VarAssignNode, IfNode, ForNode, WhileNode, \
-    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode, ImportNode, DictNode
+    FuncDefNode, CallNode, StringNode, ListNode, ReturnNode, ContinueNode, BreakNode, ImportNode, DictNode, ClassDefNode
 from .tokens import *
 from .errors import *
 
@@ -334,6 +334,12 @@ class Parser:
             if res.error:
                 return res
             return res.success(func_def)
+
+        elif tok.matches(TT_KEYWORD, "CLASS"):
+            class_def = res.register(self.class_def())
+            if res.error:
+                return res
+            return res.success(class_def)
 
         return res.failure(InvalidSyntaxError(
 
@@ -836,6 +842,99 @@ class Parser:
 
         return res.success(FuncDefNode(
             var_name_tok, arg_name_toks, body, False
+        ))
+
+    def class_def(self):
+        res = ParseResult()
+
+        if not self.current_tok.matches(TT_KEYWORD, "CLASS"):
+            return res.failure(InvalidSyntaxError(
+                "Expected 'CLASS'",
+                self.current_tok.pos_start, self.current_tok.pos_end
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type == TT_IDENTIFIER:
+            var_name_tok = self.current_tok
+            res.register_advance()
+            self.advance()
+            if self.current_tok.type != TT_LPAREN:
+                return res.failure(InvalidSyntaxError(
+                    "Expected '('",
+                    self.current_tok.pos_start, self.current_tok.pos_end
+                ))
+        else:
+            var_name_tok = None
+            if self.current_tok.type != TT_LPAREN:
+                return res.failure(InvalidSyntaxError(
+                    "Expected identifier or '('",
+                    self.current_tok.pos_start, self.current_tok.pos_end
+                ))
+
+        res.register_advance()
+        self.advance()
+        arg_name_toks = []
+
+        if self.current_tok.type == TT_IDENTIFIER:
+            arg_name_toks.append(self.current_tok)
+            res.register_advance()
+            self.advance()
+
+            while self.current_tok.type == TT_COMMA:
+                res.register_advance()
+                self.advance()
+
+                if self.current_tok.type != TT_IDENTIFIER:
+                    return res.failure(InvalidSyntaxError(
+                        "Expected identifier",
+                        self.current_tok.pos_start, self.current_tok.pos_end
+                    ))
+
+                arg_name_toks.append(self.current_tok)
+                res.register_advance()
+                self.advance()
+
+            if self.current_tok.type != TT_RPAREN:
+                return res.failure(InvalidSyntaxError(
+                    "Expected ',' or ')'",
+                    self.current_tok.pos_start, self.current_tok.pos_end
+                ))
+        else:
+            if self.current_tok.type != TT_RPAREN:
+                return res.failure(InvalidSyntaxError(
+                    "Expected identifier or ')'",
+                    self.current_tok.pos_start, self.current_tok.pos_end
+                ))
+
+        res.register_advance()
+        self.advance()
+
+        if self.current_tok.type != TT_NEWLINE:
+            return res.failure(InvalidSyntaxError(
+                "Expected NEWLINE",
+                self.current_tok.pos_start, self.current_tok.pos_end
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        body = res.register(self.statements())
+        if res.error:
+            return res
+
+        if not self.current_tok.matches(TT_KEYWORD, "END"):
+            return res.failure(InvalidSyntaxError(
+                "Expected 'END'",
+                self.current_tok.pos_start, self.current_tok.pos_end
+            ))
+
+        res.register_advance()
+        self.advance()
+
+        return res.success(ClassDefNode(
+            var_name_tok, arg_name_toks, body
         ))
 
     def bin_op(self, func_a, ops, func_b=None):

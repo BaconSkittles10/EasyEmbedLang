@@ -30,6 +30,7 @@ atom            : INT|FLOAT|STRING|IDENTIFIER|IDENTIFIER DUBCOL IDENTIFIER
                 : for-expr
                 : while-expr
                 : func-def
+                : class-def
 
 list-expr       : LBRACKET (expr (COMMA expr)*)? RBRACKET
 
@@ -60,3 +61,7 @@ func-def        : KEYWORD:FN IDENTIFIER?
                 LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN
                 (ARROW expr)
                 | (NEWLINE statements KEYWORD:END)
+
+class-def       : KEYWORD:CLASSS IDENTIFIER
+                LPAREN (IDENTIFIER (COMMA IDENTIFIER)*)? RPAREN
+                NEWLINE statements KEYWORD:END

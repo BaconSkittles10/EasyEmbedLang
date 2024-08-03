@@ -52,6 +52,8 @@ KEYWORDS = [
     "FN",
     "RETURN",
 
+    "CLASS",
+
     "IMPORT",
 
     "END"
