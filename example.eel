@@ -5,7 +5,7 @@ IMPORT "time"
 
 VAR d = {"key": "value"}
 PRINT(DICT_GET(d, "key"))
-PRINT(math::square(2))
+PRINT(math::fabs(-2))
 PRINT(time::curr_time)
 time::pause(2)
 PRINT("Hello world")
