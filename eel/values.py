@@ -458,8 +458,7 @@ class ClassDef(BaseType):
 
         instance.init_func.execute(self.init_arg_names)
 
-        ret_value = (value if self.should_auto_return else None) or res.func_return_value or Null()
-        return res.success(ret_value)
+        return res.success(instance)
 
 
 class ClassInstance(BaseType):
@@ -471,11 +470,13 @@ class ClassInstance(BaseType):
         self.vars = self.class_def.vars
         self.methods = self.class_def.methods
         self.init_func = self.class_def.init_func.copy()
+        self.init_args = init_args
 
         self.check_args(self.class_def.init_arg_names, init_args)
 
         self.init_func.set_context(self.context)
-        self.init_func.execute(init_args)
+        init_res = self.init_func.execute(init_args)
+        print(init_res)
 
     def check_args(self, arg_names, args):
         from eel.base import RTResult
@@ -514,6 +515,16 @@ class ClassInstance(BaseType):
 
         return res.success(Null())
 
+    def copy(self):
+        new = ClassInstance(self.class_def, self.init_args)
+        new.vars = self.vars
+        new.methods = self.methods
+        new.init_func = self.init_func.copy()
+
+        new.init_func.set_context(self.context)
+
+        return new
+
 
 class BaseFunction(BaseType):
     def __init__(self, name):
@@ -548,9 +559,12 @@ class BaseFunction(BaseType):
         return res.success(Null())
 
     def populate_args(self, arg_names, args, exec_ctx):
+        print(args, arg_names)
         for i in range(len(args)):
             arg_name = arg_names[i]
             arg_value = args[i]
+            if isinstance(arg_value, str):
+                arg_value = String(arg_value)
             arg_value.set_context(exec_ctx)
             exec_ctx.symbol_table.set(arg_name, arg_value)
 

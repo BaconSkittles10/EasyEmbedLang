@@ -2,7 +2,7 @@ import os
 import pathlib
 
 from eel.errors import RTError
-from eel.values import Number, Function, String, List, Null, Dictionary, ClassDef
+from eel.values import Number, Function, String, List, Null, Dictionary, ClassDef, ClassInstance
 from eel.tokens import *
 from eel.base import RTResult
 
@@ -139,6 +139,43 @@ class Interpreter:
     def visit_VarAccessNode(self, node, context):
         res = RTResult()
         var_name = node.var_name_tok.value
+        split_name = var_name.split(".")
+
+        curr = None
+        for i, arg in enumerate(split_name):
+            if i == 0:
+                curr = context.symbol_table.get(arg)
+                continue
+
+            if isinstance(curr, ClassInstance):
+                if arg in curr.methods:
+                    curr = curr.methods[arg]
+
+                elif arg in curr.vars:
+                    curr = curr.vars[arg]
+
+                else:
+                    return RTResult().failure(RTError(
+                        f"No method or variable named '{arg}'",
+                        node.pos_start, node.pos_end, context
+                    ))
+
+            elif isinstance(curr, Dictionary):
+                if arg in curr.items:
+                    curr = curr.items[arg]
+
+                else:
+                    return RTResult().failure(RTError(
+                        f"No key named '{arg}'",
+                        node.pos_start, node.pos_end, context
+                    ))
+
+            else:
+                return RTResult().failure(RTError(
+                    f"Illegal token after . ('{type(curr)}')",
+                    node.pos_start, node.pos_end, context
+                ))
+
         value = context.symbol_table.get(var_name)
 
         if not value:
@@ -156,6 +193,43 @@ class Interpreter:
         value = res.register(self.visit(node.value_node, context))
         if res.should_return():
             return res
+
+        split_name = var_name.split(".")
+
+        curr = None
+        for i, arg in enumerate(split_name):
+            if i == 0:
+                curr = context.symbol_table.get(arg)
+                continue
+
+            if isinstance(curr, ClassInstance):
+                if arg in curr.methods:
+                    curr = curr.methods[arg]
+
+                elif arg in curr.vars:
+                    curr = curr.vars[arg]
+
+                else:
+                    return RTResult().failure(RTError(
+                        f"No method or variable named '{arg}'",
+                        node.pos_start, node.pos_end, context
+                    ))
+
+            elif isinstance(curr, Dictionary):
+                if arg in curr.items:
+                    curr = curr.items[arg]
+
+                else:
+                    return RTResult().failure(RTError(
+                        f"No key named '{arg}'",
+                        node.pos_start, node.pos_end, context
+                    ))
+
+            else:
+                return RTResult().failure(RTError(
+                    f"Illegal token after . ('{type(curr)}')",
+                    node.pos_start, node.pos_end, context
+                ))
 
         context.symbol_table.set(var_name, value)
         return res.success(value)
@@ -281,7 +355,7 @@ class Interpreter:
         class_name = node.var_name_tok.value if node.var_name_tok else None
         body_node = node.body_node
         arg_names = [arg_name.value for arg_name in node.arg_name_toks]
-        init_func = Function("__init__", body_node, arg_names, False)
+        init_func = Function("__init__", body_node, arg_names, True)
         class_value = ClassDef(class_name, arg_names, init_func)
         class_value.set_context(context).set_pos(node.pos_start, node.pos_end)
 

@@ -11,7 +11,7 @@ from .tokens import *
 DIGITS = "0123456789"
 LETTERS = string.ascii_letters
 LETTERS_DIGITS = LETTERS + DIGITS
-IDENTIFIER_CHARS = LETTERS_DIGITS + "_"
+IDENTIFIER_CHARS = LETTERS_DIGITS + "_" + "."
 
 # endregion
 
