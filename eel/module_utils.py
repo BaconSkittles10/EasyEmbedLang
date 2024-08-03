@@ -53,6 +53,9 @@ class EelFunction:
     def __call__(self, *args, **kwargs):
         return self.func(*args, **kwargs)
 
+    def set_context(self, _):
+        pass
+
 
 class EelVariable:
     def __init__(self, func):
