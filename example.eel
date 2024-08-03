@@ -1,10 +1,13 @@
 IMPORT "math"
 IMPORT "time"
+IMPORT "operator"
+IMPORT "os"
 
 ################################################## Print Statement ##################################################
 
 VAR d = {"key": "value"}
 PRINT(DICT_GET(d, "key"))
+PRINT(operator::lt(1, 2))
 PRINT(math::fabs(-2))
 PRINT(time::curr_time)
 time::pause(2)
