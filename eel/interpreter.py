@@ -1,7 +1,11 @@
+import importlib.util
+import inspect
 import os
 import pathlib
+import sys
 
 from eel.errors import RTError
+from eel.module_utils import EelModule, EelModuleMeta, EelVariable, EelFunction
 from eel.values import Number, Function, String, List, Null, Dictionary
 from eel.tokens import *
 from eel.base import RTResult
@@ -147,6 +151,12 @@ class Interpreter:
                 node.pos_start, node.pos_end, context
             ))
 
+        if isinstance(value, EelVariable):
+            value = value()
+
+        if isinstance(value, EelFunction):
+            return res.success(value)
+
         value = value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
         return res.success(value)
 
@@ -283,6 +293,19 @@ class Interpreter:
         if res.should_return():
             return res
 
+        if isinstance(value_to_call, EelFunction):
+            for arg_node in node.arg_nodes:
+                args.append(res.register(self.visit(arg_node, context)))
+                if res.should_return():
+                    return res
+
+            return_value = res.register(value_to_call(*args))
+            if res.should_return():
+                return res
+            return_value = return_value.copy().set_pos(node.pos_start, node.pos_end).set_context(context)
+
+            return res.success(return_value)
+
         value_to_call = value_to_call.copy().set_pos(node.pos_start, node.pos_end)
 
         for arg_node in node.arg_nodes:
@@ -334,27 +357,53 @@ class Interpreter:
                 fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", fn)
 
             if not os.path.isfile(fn):
-                fn = "_" + value.value + ".py"
-                fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", fn)
+                name = "_" + value.value + ".py"
+                fn = os.path.join(pathlib.Path(__file__).parent.resolve(), "Libs", name)
                 if os.path.isfile(fn):
                     # Handle python library
-                    print("Python Library", fn)
+
+                    spec = importlib.util.spec_from_file_location(name, fn)
+                    mod = importlib.util.module_from_spec(spec)
+                    spec.loader.exec_module(mod)
+
+                    classes = [
+                        name for name, obj in mod.__dict__.items()
+                        if isinstance(obj, type) and obj.__module__ == mod.__name__
+                    ]
+
+                    for class_name in classes:
+                        obj = getattr(mod, class_name)
+
+                        if isinstance(obj, EelModuleMeta):
+                            eel_module = obj
+
+                            prefix = value.value + "::"
+                            for name, symbol_value in eel_module.variables.items():
+                                c = symbol_value
+                                context.symbol_table.set(prefix + name, c)
+
+                            for name, symbol_value in eel_module.functions.items():
+                                c = symbol_value
+                                context.symbol_table.set(prefix + name, c)
+
+                        return res.success(value)
+
                 else:
                     return res.failure(RTError(f"Import Error: No module or local file named '{value.value}'", node.pos_start, node.pos_end, context))
 
             result, error = run(fn, open(fn).read(), True)
-            result = result.elements
             prefix = value.value + "::"
-            for node in result:
-                c = node.copy()
-                if isinstance(node, Function):
-                    context.symbol_table.set(prefix + node.name, c)
+            for name, symbol_value in result.context.symbol_table.symbols.items():
+                c = symbol_value.copy()
+                context.symbol_table.set(prefix + name, c)
+                """if isinstance(node, Function):
+                    context.symbol_table.set(prefix + name, c)
                 elif isinstance(node, Number) or isinstance(node, String):
                     name = [name for name, val in node.context.symbol_table.symbols.items() if val == node]
                     if len(name) > 0:
                         name = name[0]
                     else:
                         return res.failure(RTError("Unknown Import Error", node.pos_start, node.pos_end, context))
-                    context.symbol_table.set(prefix + name, c)
+                    context.symbol_table.set(prefix + name, c)"""
 
         return res.success(value)
