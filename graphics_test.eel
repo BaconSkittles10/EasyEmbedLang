@@ -1,0 +1,11 @@
+IMPORT "graphics"
+IMPORT "sqlite"
+
+# VAR conn = sqlite::connect("database.db")
+# VAR curr = sqlite::cursor(conn)
+# sqlite::execute(curr, "SELECT * FROM demo")
+# VAR res = sqlite::fetchall(curr)
+# PRINT(res)
+
+graphics::init_win("testing win")
+graphics::mainloop()
