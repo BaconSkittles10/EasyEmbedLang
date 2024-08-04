@@ -327,6 +327,7 @@ class List(BaseType):
         super().__init__()
         self.elements = elements
         self.type = "List"
+        self.curr_index = 0
 
     def added_to(self, other):
         if isinstance(other, List):
@@ -377,9 +378,19 @@ class List(BaseType):
         copy.set_context(self.context)
         return copy
 
+    def __iter__(self):
+        self.curr_index = 0
+        return self
+
+    def __next__(self):
+        return self.elements[self.curr_index]
+        self.curr_index += 1
+
+        if self.curr_index >= len(self.elements):
+            raise StopIteration
+
     def __str__(self):
         return f"{', '.join([str(x) for x in self.elements])}"
-
 
     def __repr__(self):
         return f"[{', '.join([str(x) for x in self.elements])}]"
