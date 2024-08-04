@@ -214,6 +214,7 @@ class Null(BaseType):
     def __init__(self):
         super().__init__()
         self.type = "Null"
+        self.value = None
 
     def copy(self):
         return Null().set_context(self.context).set_pos(self.pos_start, self.pos_end)
@@ -238,6 +239,19 @@ class Boolean(Number):
 
     def __repr__(self):
         return str(self.value).lower()
+
+
+class File(BaseType):
+    def __init__(self, value):
+        super().__init__()
+        self.type = "File"
+        self.value = value
+
+    def copy(self):
+        return File(self.value)
+
+    def __repr__(self):
+        return f"File {str(self.value)}"
 
 
 class String(BaseType):

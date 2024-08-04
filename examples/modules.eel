@@ -1,0 +1,8 @@
+IMPORT "csv"
+
+VAR split = csv::read("a,b,c,d,e,f g h, i, j")
+VAR len = LEN(split)
+
+FOR i = 0 TO len THEN
+    PRINT(split^i)
+END
