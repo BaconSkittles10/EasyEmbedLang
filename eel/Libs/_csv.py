@@ -24,5 +24,14 @@ class CSVModule(EelModule):
         res = List(res)
         return RTResult().success(res)
 
+    @staticmethod
+    @eel_function
+    def write(contents: List, delimiter: String = String(",")):
+        with StringIO() as file:
+            writer = csv.writer(file, delimiter=delimiter.value)
+            friendly_contents = [[elem.value for elem in row.elements] for row in contents.elements]
+            writer.writerows(friendly_contents)
+            return RTResult().success(String(file.getvalue()))
+
 
 CSVModule.initialize()
