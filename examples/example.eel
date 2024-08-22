@@ -15,19 +15,15 @@ PRINT("Hello world")
 PRINT("")
 
 ################################################## For Loop ##################################################
+PRINT("-----FOR LOOP-----")
 FOR i = 1 TO 6 THEN
-    IF i == 1 THEN
-        PRINT("-----FOR LOOP-----")
-    END
     PRINT("Iteration " + i)
 END
 
 ################################################## While Loop ##################################################
+PRINT("-----WHILE LOOP-----")
 VAR x = 1
 WHILE x < 6 THEN
-    IF x == 1 THEN
-        PRINT("-----WHILE LOOP-----")
-    END
     PRINT("Iteration " + x)
     VAR x = x + 1
 END
