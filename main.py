@@ -2,7 +2,8 @@ import eel
 import shell
 import sys
 
-if "-s" in sys.argv or "-shell" in sys.argv:
+sys_arguments = sys.argv[1:]
+if "-shell" in sys_arguments or "-s" in sys_arguments:
     shell.run()
 
 else:
