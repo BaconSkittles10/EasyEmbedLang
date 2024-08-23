@@ -1,3 +1,5 @@
 import eel
 
-eel.shell()
+
+def run():
+    eel.shell()
