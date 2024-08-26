@@ -8,7 +8,6 @@
 - [ ] Classes
 - [ ] Package Manager or Remote Install Packages from Github
 - [ ] event Keyword (like in C#)
-- [ ] ~= operator
 
 ## Syntax
 - **Imports:**
