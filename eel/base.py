@@ -147,6 +147,12 @@ class Lexer:
                 case ">":
                     tokens.append(self.make_greater_than())
 
+                case "~":
+                    tok, error = self.make_tilda()
+                    if error:
+                        return [], error
+                    tokens.append(tok)
+
                 case ",":
                     tokens.append(Token(TT_COMMA, pos_start=self.pos))
                     self.advance()
@@ -285,6 +291,19 @@ class Lexer:
             tok_type = TT_GTE
 
         return Token(tok_type, pos_start=pos_start, pos_end=self.pos)
+
+    def make_tilda(self):
+        pos_start = self.pos.copy()
+        tok_type = None
+        self.advance()
+
+        if self.current_char == "=":  # Greater Than / Equals
+            self.advance()
+            return Token(TT_TE, pos_start=pos_start, pos_end=self.pos), None
+
+        return None, ExpectedCharError("Expected '=' after '~'",
+           pos_start, self.pos)
+
 
     def skip_comment(self):
         self.advance()

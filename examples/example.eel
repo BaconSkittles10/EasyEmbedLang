@@ -12,7 +12,14 @@ PRINT(math::fabs(-2))
 PRINT(time::curr_time)
 time::pause(2)
 PRINT("Hello world")
-PRINT("")
+
+################################################## Tilda-Equals Operator ##################################################
+
+IF 1.5721 ~= 1.162 THEN
+    PRINT("Tilda Equals")
+ELSE
+    PRINT("Tilda doesn't equal")
+END
 
 ################################################## For Loop ##################################################
 PRINT("-----FOR LOOP-----")

@@ -101,6 +101,9 @@ class Interpreter:
         elif node.op_tok.type == TT_GTE:
             result, error = left.get_comparison_gte(right)
 
+        elif node.op_tok.type == TT_TE:
+            result, error = left.get_comparison_te(right)
+
         elif node.op_tok.matches(TT_KEYWORD, 'AND'):
             result, error = left.and_with(right)
 

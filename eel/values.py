@@ -146,6 +146,12 @@ class Number(BaseType):
         else:
             return None, self.illegal_operation(other)
 
+    def get_comparison_te(self, other):
+        if isinstance(other, Number):
+            return Boolean(round(self.value) == round(other.value)).set_context(self.context), None
+        else:
+            return None, self.illegal_operation(other)
+
     def get_comparison_ne(self, other):
         if isinstance(other, Number):
             return Boolean(self.value != other.value).set_context(self.context), None
