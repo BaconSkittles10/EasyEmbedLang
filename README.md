@@ -7,7 +7,12 @@
 ## TODO
 - [ ] Classes
 - [ ] Package Manager or Remote Install Packages from Github
+- [ ] -= and += operators
 - [ ] event Keyword (like in C#)
+  - This will look like ```EVENT myevent```
+  - ```myevent.subscribe(func)``` OR ```myevent += func```
+  - ```myevent.unsubscribe(func)``` OR ```myevent -= func```
+  - ```myevent.invoke()```
 
 ## Syntax
 - **Imports:**
