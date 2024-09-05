@@ -13,6 +13,11 @@
   - ```myevent.subscribe(func)``` OR ```myevent += func```
   - ```myevent.unsubscribe(func)``` OR ```myevent -= func```
   - ```myevent.invoke()```
+- [ ] Function decorators
+- [ ] Class inheritance
+  - [ ] SUPER function 
+- [ ] Keyword arguments for functions
+- [ ] Web Development Library (Finish decorators, kwargs, and classes first)
 
 ## Syntax
 - **Imports:**
