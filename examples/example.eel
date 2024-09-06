@@ -2,6 +2,7 @@ IMPORT "math"
 IMPORT "time"
 IMPORT "operator"
 IMPORT "os"
+IMPORT "random"
 
 ################################################## Print Statement ##################################################
 
@@ -15,7 +16,7 @@ PRINT("Hello world")
 
 ################################################## Tilda-Equals Operator ##################################################
 
-IF 1.5721 ~= 1.162 THEN
+IF 1.4721 ~= 1.162 THEN
     PRINT("Tilda Equals")
 ELSE
     PRINT("Tilda doesn't equal")
@@ -72,6 +73,13 @@ PRINT(join_res)
 
 VAR map_res = map([1, 2, 3], math::double)
 PRINT(map_res)
+
+VAR a = random::randint(1, 100)
+VAR b = random::randint(1, 100)
+VAR c = random::randint(1, 100)
+PRINT([a, b, c])
+VAR rand_map_res = map([a, b, c], math::double)
+PRINT(rand_map_res)
 
 PRINT("")
 
