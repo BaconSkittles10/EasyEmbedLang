@@ -3,6 +3,7 @@ IMPORT "time"
 IMPORT "operator"
 IMPORT "os"
 IMPORT "random"
+IMPORT "test"
 
 ################################################## Print Statement ##################################################
 
@@ -11,6 +12,7 @@ PRINT(DICT_GET(d, "key"))
 PRINT(operator::lt(1, 2))
 PRINT(math::fabs(-2))
 PRINT(time::curr_time)
+test::test("hi")
 time::pause(2)
 PRINT("Hello world")
 
